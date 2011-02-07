@@ -1,8 +1,11 @@
 package dnode;
 
+import junit.framework.AssertionFailedError;
 import org.junit.Test;
 
 import java.io.*;
+
+import static org.junit.Assert.assertEquals;
 
 public class DNodeTest {
     public static class Calculator {
@@ -38,31 +41,25 @@ public class DNodeTest {
             signals.wait();
         }
 
-        runClient();
+        assertEquals("100\n", runClient());
     }
 
-    private void runClient() throws IOException, InterruptedException {
+    private String runClient() throws IOException, InterruptedException {
         ProcessBuilder pb = new ProcessBuilder("/usr/local/bin/node", "/Users/ahellesoy/scm/dnode-java/dnode/client.js");
         pb.redirectErrorStream(true);
         Process client = pb.start();
 
-        final BufferedReader clientStdOut = new BufferedReader(new InputStreamReader(client.getInputStream(), "UTF-8"));
-        Thread pumper = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    String line;
-                    System.out.println("READING...");
-                    while ((line = clientStdOut.readLine()) != null) {
-                        System.out.println(line);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        pumper.start();
+        BufferedReader clientStdOut = new BufferedReader(new InputStreamReader(client.getInputStream(), "UTF-8"));
+        StringBuilder result = new StringBuilder();
+        String line;
+        while ((line = clientStdOut.readLine()) != null) {
+            result.append(line).append("\n");
+        }
         int exit = client.waitFor();
-        System.out.println("exit = " + exit);
+        if(exit != 0)
+            throw new AssertionFailedError("Exit value from external process was " + exit + 
+                    " (with stdout/stderr: " + result + ")");
+        return result.toString();
     }
 
 }

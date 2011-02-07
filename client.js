@@ -3,7 +3,6 @@ var DNode = require('dnode');
 var sys = require('sys');
 
 var client = DNode.connect(6060, function (remote) {
-    console.log("Connected");
     remote.moo(function (x) {
         console.log(x);
     });
