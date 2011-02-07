@@ -81,7 +81,7 @@ public class DNodeTest {
     }
 
     private String runClient(String method) throws IOException, InterruptedException {
-        ProcessBuilder pb = new ProcessBuilder("/usr/local/bin/node", "/Users/ahellesoy/scm/dnode-java/dnode/client.js", method);
+        ProcessBuilder pb = new ProcessBuilder("/usr/local/bin/node", "client.js", method);
         pb.redirectErrorStream(true);
         Process client = pb.start();
 

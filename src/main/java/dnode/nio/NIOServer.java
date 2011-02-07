@@ -20,7 +20,7 @@ public class NIOServer implements Server {
 
     public void listen(DNode dnode) throws IOException {
         ssc = ServerSocketChannel.open();
-        InetSocketAddress isa = new InetSocketAddress(InetAddress.getLocalHost(), port);
+        InetSocketAddress isa = new InetSocketAddress(port);
         ssc.socket().bind(isa);
         dnode.emit("ready");
         SocketChannel channel = ssc.accept();
