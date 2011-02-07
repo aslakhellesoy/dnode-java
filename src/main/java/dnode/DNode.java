@@ -22,7 +22,7 @@ public class DNode {
 
     private final DNodeObject instance;
     private SocketChannel sc;
-    private Map<String,Callback> callbacks = new HashMap<String, Callback>();
+    private Map<String, Callback> callbacks = new HashMap<String, Callback>();
     private ServerSocketChannel ssc;
 
     public DNode(Object instance) {
@@ -53,7 +53,8 @@ public class DNode {
     }
 
     private void invoke(String invocation, Callback callback) throws Throwable {
-        instance.invoke(callback);
+        JsonObject invocationJson = (JsonObject) new JsonParser().parse(invocation);
+        instance.invoke(invocationJson, callback);
     }
 
     private JsonArray transform(Object[] args) {
@@ -66,9 +67,9 @@ public class DNode {
 
     private JsonElement toJson(Object o) {
         JsonElement e;
-        if(o instanceof String) {
+        if (o instanceof String) {
             e = new JsonPrimitive((String) o);
-        } else if(o instanceof Number) {
+        } else if (o instanceof Number) {
             e = new JsonPrimitive((Number) o);
         } else {
             throw new RuntimeException("Unsupported type: " + o.getClass());
@@ -115,24 +116,19 @@ public class DNode {
 
     private String methods() {
         JsonArray arguments = new JsonArray();
-        arguments.add(instance.toJson());
-        JsonObject callbacks = new JsonObject();
-        JsonArray callbackArray = new JsonArray();
-        callbackArray.add(new JsonPrimitive("0"));
-        callbackArray.add(new JsonPrimitive("moo"));
-        callbacks.add("0", callbackArray);
-        return responseString("methods", arguments, callbacks, new JsonArray());
+        arguments.add(instance.getSignature());
+        return responseString("methods", arguments, instance.getCallbacks(), new JsonArray());
     }
 
-    private String responseString(int method, JsonArray arguments, JsonObject callbacks, JsonArray links) {
-        return responseString(new JsonPrimitive(method), arguments, callbacks, links);
-    }
-        
-    private String responseString(String method, JsonArray arguments, JsonObject callbacks, JsonArray links) {
+    private String responseString(int method, JsonArray arguments, JsonElement callbacks, JsonArray links) {
         return responseString(new JsonPrimitive(method), arguments, callbacks, links);
     }
 
-    private String responseString(JsonPrimitive method, JsonArray arguments, JsonObject callbacks, JsonArray links) {
+    private String responseString(String method, JsonArray arguments, JsonElement callbacks, JsonArray links) {
+        return responseString(new JsonPrimitive(method), arguments, callbacks, links);
+    }
+
+    private String responseString(JsonElement method, JsonArray arguments, JsonElement callbacks, JsonArray links) {
         JsonObject response = new JsonObject();
         response.add("method", method);
         response.add("arguments", arguments);

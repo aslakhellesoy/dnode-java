@@ -8,6 +8,10 @@ var server = DNode({
     moo : function (reply) { 
         reply(100); 
         server.close();
+    },
+    boo : function (n, reply) { 
+        reply(n+1); 
+        server.close();
     }
 //    sTimesTen : DNode.sync(function (n) { return n * 10 }),
 }).listen(6060);

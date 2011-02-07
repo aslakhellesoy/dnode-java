@@ -9,14 +9,18 @@ import static org.junit.Assert.assertEquals;
 
 public class DNodeTest {
     public static class Mooer {
-        private final Object moo;
+        private final int moo;
 
-        public Mooer(Object moo) {
+        public Mooer(int moo) {
             this.moo = moo;
         }
 
         public void moo(Callback cb) {
             cb.call(moo);
+        }
+
+        public void boo(Callback cb) {
+            cb.call(moo*10);
         }
     }
 
@@ -26,14 +30,21 @@ public class DNodeTest {
     public void shouldTalk() throws IOException, InterruptedException {
         final DNode dNode = new DNode(new Mooer(100));
         runServer(dNode);
-        assertEquals("100\n", runClient());
+        assertEquals("100\n", runClient("moo"));
     }
 
     @Test
-    public void shouldUSeDataInInstance() throws IOException, InterruptedException {
+    public void shouldUseDataInInstance() throws IOException, InterruptedException {
         final DNode dNode = new DNode(new Mooer(200));
         runServer(dNode);
-        assertEquals("200\n", runClient());
+        assertEquals("200\n", runClient("moo"));
+    }
+
+    @Test
+    public void shouldCallRightMethod() throws IOException, InterruptedException {
+        final DNode dNode = new DNode(new Mooer(300));
+        runServer(dNode);
+        assertEquals("3000\n", runClient("boo"));
     }
 
     private void runServer(final DNode dNode) throws InterruptedException {
@@ -59,8 +70,8 @@ public class DNodeTest {
         }
     }
 
-    private String runClient() throws IOException, InterruptedException {
-        ProcessBuilder pb = new ProcessBuilder("/usr/local/bin/node", "/Users/ahellesoy/scm/dnode-java/dnode/client.js");
+    private String runClient(String method) throws IOException, InterruptedException {
+        ProcessBuilder pb = new ProcessBuilder("/usr/local/bin/node", "/Users/ahellesoy/scm/dnode-java/dnode/client.js", method);
         pb.redirectErrorStream(true);
         Process client = pb.start();
 

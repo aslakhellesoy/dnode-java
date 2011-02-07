@@ -15,9 +15,14 @@ public class DNodeObjectTest {
     }
 
     @Test
-    public void shouldDescribeItself() {
+    public void shouldReportSignature() {
         DNodeObject dcat = new DNodeObject(new Cat());
-        assertEquals("{\"say\":\"[Function]\",\"meow\":\"[Function]\"}", dcat.toJson().toString());
+        assertEquals("{\"say\":\"[Function]\",\"meow\":\"[Function]\"}", dcat.getSignature().toString());
     }
 
+    @Test
+    public void shouldReportCallbacks() {
+        DNodeObject dcat = new DNodeObject(new Cat());
+        assertEquals("{\"0\":[\"0\",\"say\"],\"1\":[\"0\",\"meow\"]}", dcat.getCallbacks().toString());
+    }
 }    

@@ -2,8 +2,11 @@
 var DNode = require('dnode');
 var sys = require('sys');
 
+var m = process.ARGV[2];
+
 var client = DNode.connect(6060, function (remote) {
-    remote.moo(function (x) {
+
+    remote[m](function (x) {
         console.log(x);
     });
 //    remote.sTimesTen(5, function (m) {
