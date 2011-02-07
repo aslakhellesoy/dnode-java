@@ -1,5 +1,7 @@
 package dnode;
 
+import com.google.gson.*;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -18,13 +20,13 @@ public class DNode {
     private static CharsetEncoder encoder = charset.newEncoder();
     private static CharsetDecoder decoder = charset.newDecoder();
 
-    private final Object instance;
+    private final DNodeObject instance;
     private SocketChannel sc;
     private Map<String,Callback> callbacks = new HashMap<String, Callback>();
     private ServerSocketChannel ssc;
 
     public DNode(Object instance) {
-        this.instance = instance;
+        this.instance = new DNodeObject(instance);
     }
 
     public void listen(int port) throws IOException {
@@ -32,8 +34,11 @@ public class DNode {
         send(methods());
         String clientMethods = read();
         String invocation = read();
-        System.out.println("invocation = " + invocation);
-        send("{\"method\":0,\"arguments\":[100],\"callbacks\":{},\"links\":[]}");
+
+        JsonArray args = new JsonArray();
+        args.add(new JsonPrimitive(100));
+        //send("{\"method\":0,\"arguments\":[100],\"callbacks\":{},\"links\":[]}");
+        send(responseString(0, args, new JsonObject(), new JsonArray()));
         shutdown();
     }
 
@@ -66,10 +71,32 @@ public class DNode {
         sc.write(encoder.encode(CharBuffer.wrap(data + "\r\n")));
     }
 
-    // {"method":"methods","arguments":[{"moo":"[Function]"}],"callbacks":{"0":["0","moo"]},"links":[]}
-
     private String methods() {
-        return "{\"method\":\"methods\",\"arguments\":[{\"moo\":\"[Function]\"}],\"callbacks\":{\"0\":[\"0\",\"moo\"]},\"links\":[]}";
+        JsonArray arguments = new JsonArray();
+        arguments.add(instance.toJson());
+        JsonObject callbacks = new JsonObject();
+        JsonArray callbackArray = new JsonArray();
+        callbackArray.add(new JsonPrimitive("0"));
+        callbackArray.add(new JsonPrimitive("moo"));
+        callbacks.add("0", callbackArray);
+        return responseString("methods", arguments, callbacks, new JsonArray());
+    }
+
+    private String responseString(int method, JsonArray arguments, JsonObject callbacks, JsonArray links) {
+        return responseString(new JsonPrimitive(method), arguments, callbacks, links);
+    }
+        
+    private String responseString(String method, JsonArray arguments, JsonObject callbacks, JsonArray links) {
+        return responseString(new JsonPrimitive(method), arguments, callbacks, links);
+    }
+
+    private String responseString(JsonPrimitive method, JsonArray arguments, JsonObject callbacks, JsonArray links) {
+        JsonObject response = new JsonObject();
+        response.add("method", method);
+        response.add("arguments", arguments);
+        response.add("callbacks", callbacks);
+        response.add("links", links);
+        return response.toString();
     }
 
     public void on(String event, Callback callback) {

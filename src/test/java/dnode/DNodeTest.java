@@ -8,9 +8,15 @@ import java.io.*;
 import static org.junit.Assert.assertEquals;
 
 public class DNodeTest {
-    public static class Calculator {
-        public void plus(int a, int b, Callback cb) {
-            cb.call(a + b);
+    public static class Mooer {
+        private final Object moo;
+
+        public Mooer(Object moo) {
+            this.moo = moo;
+        }
+
+        public void moo(Callback cb) {
+            cb.call(moo);
         }
     }
 
@@ -18,13 +24,24 @@ public class DNodeTest {
 
     @Test
     public void shouldTalk() throws IOException, InterruptedException {
+        final DNode dNode = new DNode(new Mooer(100));
+        runServer(dNode);
+        assertEquals("100\n", runClient());
+    }
+
+    @Test
+    public void shouldUSeDataInInstance() throws IOException, InterruptedException {
+        final DNode dNode = new DNode(new Mooer(200));
+        runServer(dNode);
+        assertEquals("200\n", runClient());
+    }
+
+    private void runServer(final DNode dNode) throws InterruptedException {
         Thread thread = new Thread(new Runnable() {
             public void run() {
                 try {
-                    DNode dNode = new DNode(new Calculator());
                     dNode.on("ready", new Callback() {
                         public void call(Object... args) {
-                            System.out.println("READY");
                             synchronized (signals) {
                                 signals.notifyAll();
                             }
@@ -40,8 +57,6 @@ public class DNodeTest {
         synchronized (signals) {
             signals.wait();
         }
-
-        assertEquals("100\n", runClient());
     }
 
     private String runClient() throws IOException, InterruptedException {
