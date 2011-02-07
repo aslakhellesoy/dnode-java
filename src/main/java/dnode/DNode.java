@@ -34,12 +34,46 @@ public class DNode {
         send(methods());
         String clientMethods = read();
         String invocation = read();
+        try {
+            invoke(invocation, new Callback() {
+                public void call(Object... args) {
+                    JsonArray jsonArgs = transform(args);
+                    send(responseString(0, jsonArgs, new JsonObject(), new JsonArray()));
+                    try {
+                        shutdown();
+                    } catch (IOException e) {
+                        e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                    }
+                }
+            });
+        } catch (Throwable throwable) {
+            // TODO write back exception result
+            throwable.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+    }
 
-        JsonArray args = new JsonArray();
-        args.add(new JsonPrimitive(100));
-        //send("{\"method\":0,\"arguments\":[100],\"callbacks\":{},\"links\":[]}");
-        send(responseString(0, args, new JsonObject(), new JsonArray()));
-        shutdown();
+    private void invoke(String invocation, Callback callback) throws Throwable {
+        instance.invoke(callback);
+    }
+
+    private JsonArray transform(Object[] args) {
+        JsonArray result = new JsonArray();
+        for (Object arg : args) {
+            result.add(toJson(arg));
+        }
+        return result;
+    }
+
+    private JsonElement toJson(Object o) {
+        JsonElement e;
+        if(o instanceof String) {
+            e = new JsonPrimitive((String) o);
+        } else if(o instanceof Number) {
+            e = new JsonPrimitive((Number) o);
+        } else {
+            throw new RuntimeException("Unsupported type: " + o.getClass());
+        }
+        return e;
     }
 
     private void shutdown() throws IOException {
@@ -67,8 +101,16 @@ public class DNode {
         return response.toString();
     }
 
-    private void send(String data) throws IOException {
-        sc.write(encoder.encode(CharBuffer.wrap(data + "\r\n")));
+    private void send(String data) {
+        try {
+            sc.write(encoder.encode(CharBuffer.wrap(data + "\r\n")));
+        } catch (IOException e) {
+            try {
+                sc.close();
+            } catch (IOException e1) {
+                e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+        }
     }
 
     private String methods() {
