@@ -1,5 +1,5 @@
 package dnode;
 
 public interface Callback {
-   void call(Object... args) throws RuntimeException;
+    void call(Object... args) throws RuntimeException;
 }

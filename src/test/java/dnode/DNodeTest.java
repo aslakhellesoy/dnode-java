@@ -1,13 +1,18 @@
 package dnode;
 
 import junit.framework.AssertionFailedError;
+import org.junit.After;
 import org.junit.Test;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 import static org.junit.Assert.assertEquals;
 
 public class DNodeTest {
+    private DNode dNode;
+
     public static class Mooer {
         private final int moo;
 
@@ -20,29 +25,34 @@ public class DNodeTest {
         }
 
         public void boo(Callback cb) {
-            cb.call(moo*10);
+            cb.call(moo * 10);
         }
+    }
+
+    @After
+    public void shutdownServer() throws IOException {
+        dNode.shutdown();
     }
 
     private final Object signals = new Object();
 
     @Test
     public void shouldTalk() throws IOException, InterruptedException {
-        final DNode dNode = new DNode(new Mooer(100));
+        dNode = new DNode(new Mooer(100));
         runServer(dNode);
         assertEquals("100\n", runClient("moo"));
     }
 
     @Test
     public void shouldUseDataInInstance() throws IOException, InterruptedException {
-        final DNode dNode = new DNode(new Mooer(200));
+        dNode = new DNode(new Mooer(200));
         runServer(dNode);
         assertEquals("200\n", runClient("moo"));
     }
 
     @Test
     public void shouldCallRightMethod() throws IOException, InterruptedException {
-        final DNode dNode = new DNode(new Mooer(300));
+        dNode = new DNode(new Mooer(300));
         runServer(dNode);
         assertEquals("3000\n", runClient("boo"));
     }
@@ -82,8 +92,8 @@ public class DNodeTest {
             result.append(line).append("\n");
         }
         int exit = client.waitFor();
-        if(exit != 0)
-            throw new AssertionFailedError("Exit value from external process was " + exit + 
+        if (exit != 0)
+            throw new AssertionFailedError("Exit value from external process was " + exit +
                     " (with stdout/stderr: " + result + ")");
         return result.toString();
     }

@@ -19,7 +19,7 @@ public class DNodeObject {
     public JsonElement getSignature() {
         Class<?> klass = this.instance.getClass();
         JsonObject signature = new JsonObject();
-        for(Method m : klass.getDeclaredMethods()) {
+        for (Method m : klass.getDeclaredMethods()) {
             signature.addProperty(m.getName(), "[Function]");
         }
         return signature;
@@ -29,10 +29,10 @@ public class DNodeObject {
         Class<?> klass = this.instance.getClass();
         JsonObject callbacks = new JsonObject();
         int index = 0;
-        for(Method m : klass.getDeclaredMethods()) {
+        for (Method m : klass.getDeclaredMethods()) {
             Class<?>[] parameterTypes = m.getParameterTypes();
             for (Class<?> parameterType : parameterTypes) {
-                if(Callback.class.isAssignableFrom(parameterType)) {
+                if (Callback.class.isAssignableFrom(parameterType)) {
                     JsonArray path = new JsonArray();
                     path.add(new JsonPrimitive("0"));
                     path.add(new JsonPrimitive(m.getName()));

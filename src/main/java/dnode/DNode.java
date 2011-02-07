@@ -1,46 +1,41 @@
 package dnode;
 
 import com.google.gson.*;
+import dnode.nio.NIOServer;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CharsetEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
 public class DNode {
-    private static Charset charset = Charset.forName("UTF-8");
-    private static CharsetEncoder encoder = charset.newEncoder();
-    private static CharsetDecoder decoder = charset.newDecoder();
-
     private final DNodeObject instance;
-    private SocketChannel sc;
     private Map<String, Callback> callbacks = new HashMap<String, Callback>();
-    private ServerSocketChannel ssc;
+    private Server server;
 
     public DNode(Object instance) {
         this.instance = new DNodeObject(instance);
     }
 
-    public void listen(int port) throws IOException {
-        sc = connect(port);
-        send(methods());
-        String clientMethods = read();
-        String invocation = read();
+    public void shutdown() throws IOException {
+        this.server.shutdown();
+    }
+
+    public void listen(Server server) throws IOException {
+        this.server = server;
+        server.listen(this);
+    }
+
+    public void handle(final Connection connection) {
         try {
+            connection.send(methods());
+            String clientMethods = connection.read();
+            String invocation = connection.read();
             invoke(invocation, new Callback() {
                 public void call(Object... args) {
                     JsonArray jsonArgs = transform(args);
-                    send(responseString(0, jsonArgs, new JsonObject(), new JsonArray()));
+                    connection.send(responseString(0, jsonArgs, new JsonObject(), new JsonArray()));
                     try {
-                        shutdown();
+                        connection.close();
                     } catch (IOException e) {
                         e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                     }
@@ -50,6 +45,10 @@ public class DNode {
             // TODO write back exception result
             throwable.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
+    }
+
+    public void listen(int port) throws IOException {
+        listen(new NIOServer(port));
     }
 
     private void invoke(String invocation, Callback callback) throws Throwable {
@@ -77,41 +76,8 @@ public class DNode {
         return e;
     }
 
-    private void shutdown() throws IOException {
-        ssc.close();
-        sc.close();
-    }
-
-    private SocketChannel connect(int port) throws IOException {
-        ssc = ServerSocketChannel.open();
-        InetSocketAddress isa = new InetSocketAddress(InetAddress.getLocalHost(), port);
-        ssc.socket().bind(isa);
-        emit("ready");
-        return ssc.accept();
-    }
-
-    private void emit(String event, Object... args) {
+    public void emit(String event, Object... args) {
         callbacks.get(event).call(args);
-    }
-
-    private String read() throws IOException {
-        ByteBuffer bb = ByteBuffer.allocate(1024);
-        sc.read(bb);
-        bb.flip();
-        CharBuffer response = decoder.decode(bb);
-        return response.toString();
-    }
-
-    private void send(String data) {
-        try {
-            sc.write(encoder.encode(CharBuffer.wrap(data + "\r\n")));
-        } catch (IOException e) {
-            try {
-                sc.close();
-            } catch (IOException e1) {
-                e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
-        }
     }
 
     private String methods() {

@@ -7,10 +7,11 @@ import static org.junit.Assert.assertEquals;
 public class DNodeObjectTest {
     public static class Cat {
         public void say(Callback callback) {
-            
+
         }
+
         public void meow(Callback callback) {
-            
+
         }
     }
 
