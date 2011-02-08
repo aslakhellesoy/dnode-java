@@ -8,6 +8,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import webbit.*;
+
 import static org.junit.Assert.assertEquals;
 
 public class DNodeTest {
@@ -57,6 +59,13 @@ public class DNodeTest {
         assertEquals("3000\n", runClient("boo"));
     }
 
+    @Test
+    public void shouldTalkUsingWebbit() throws IOException, InterruptedException {
+        dNode = new DNode(new Mooer(100));
+        runWebbitServer(dNode);
+        assertEquals("100\n", runClient("moo"));
+    }
+
     private void runServer(final DNode dNode) throws InterruptedException {
         Thread thread = new Thread(new Runnable() {
             public void run() {
@@ -69,6 +78,31 @@ public class DNodeTest {
                         }
                     });
                     dNode.listen(6060);
+                } catch (IOException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+            }
+        });
+        synchronized (signals) {
+            thread.start();
+            signals.wait();
+        }
+    }
+
+    private void runWebbitServer(final DNode dNode) throws InterruptedException {
+        WebServer server = WebServers.createWebServer(6060);
+        final Server ws = new WebbitServer(server, "/");
+        Thread thread = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    dNode.on("ready", new Callback() {
+                        public void call(Object... args) {
+                            synchronized (signals) {
+                                signals.notifyAll();
+                            }
+                        }
+                    });
+                    dNode.listen(ws);
                 } catch (IOException e) {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 }
