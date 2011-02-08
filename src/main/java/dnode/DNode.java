@@ -1,7 +1,6 @@
 package dnode;
 
 import com.google.gson.*;
-import dnode.nio.NIOServer;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -10,18 +9,12 @@ import java.util.Map;
 public class DNode {
     private final DNodeObject instance;
     private Map<String, Callback> callbacks = new HashMap<String, Callback>();
-    private Server server;
 
     public DNode(Object instance) {
         this.instance = new DNodeObject(instance);
     }
 
-    public void shutdown() throws IOException {
-        this.server.shutdown();
-    }
-
     public void listen(Server server) throws IOException {
-        this.server = server;
         server.listen(this);
     }
 
@@ -45,10 +38,6 @@ public class DNode {
             // TODO write back exception result
             throwable.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
-    }
-
-    public void listen(int port) throws IOException {
-        listen(new NIOServer(port));
     }
 
     private void invoke(String invocation, Callback callback) throws Throwable {

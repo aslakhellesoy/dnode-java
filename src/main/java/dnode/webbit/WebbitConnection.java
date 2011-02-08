@@ -1,7 +1,9 @@
-package dnode;
+package dnode.webbit;
 
 import java.util.LinkedList;
 import java.io.IOException;
+
+import dnode.Connection;
 import webbit.*;
 
 public class WebbitConnection implements Connection {

@@ -1,11 +1,15 @@
-package dnode;
+package dnode.webbit;
+
+import dnode.DNode;
+import dnode.Server;
+import webbit.WebServer;
 
 import java.io.IOException;
-import webbit.WebServer;
 
 public class WebbitServer implements Server {
     private final WebServer server;
     private final String path;
+
     public WebbitServer(WebServer server, String path) {
         this.server = server;
         this.path = path;

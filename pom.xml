@@ -14,21 +14,50 @@
             <version>1.6</version>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.8.2</version>
-            <scope>test</scope>
+            <groupId>webbit</groupId>
+            <artifactId>webbit</artifactId>
+            <version>0.0.1</version>
         </dependency>
         <dependency>
             <groupId>webbit</groupId>
             <artifactId>webbit</artifactId>
             <version>0.0.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.jboss.netty</groupId>
+            <artifactId>netty</artifactId>
+            <version>3.2.3.Final</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.sourceforge.htmlunit</groupId>
+            <artifactId>htmlunit-websocket</artifactId>
+            <version>2.9-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <repositories>
         <repository>
             <id>GSon</id>
             <url>http://google-gson.googlecode.com/svn/mavenrepo/</url>
+        </repository>
+        <repository>
+            <id>Sonatype</id>
+            <url>http://oss.sonatype.org/content/repositories/releases/</url>
+        </repository>
+        <repository>
+            <id>JBoss</id>
+            <url>http://repository.jboss.org/nexus/content/groups/public/</url>
+        </repository>
+        <repository>
+            <id>Local</id>
+            <url>file://${project.dir}/lib/</url>
         </repository>
     </repositories>
     <build>

@@ -1,19 +1,20 @@
-package dnode;
+package dnode.webbit;
 
 import java.util.Map;
 import java.util.HashMap;
 
+import dnode.DNode;
 import webbit.*;
 
 public class DNodeWebSocketHandler implements WebSocketHandler {
     private final DNode dnode;
 
+    // This looks horrible, but it seems to be OK... =)
+    private final Map<WebSocketConnection, WebbitConnection> connections = new HashMap<WebSocketConnection, WebbitConnection>();
+
     public DNodeWebSocketHandler(DNode dnode) {
         this.dnode = dnode;
     }
-
-    // This looks horrible, but it seems to be OK... =)
-    private Map<WebSocketConnection, WebbitConnection> connections = new HashMap<WebSocketConnection, WebbitConnection>();
 
     public void onOpen(WebSocketConnection connection) throws Exception {
         WebbitConnection c = getFor(connection);
@@ -26,7 +27,6 @@ public class DNodeWebSocketHandler implements WebSocketHandler {
     }
 
     public void onClose(WebSocketConnection connection) throws Exception {
-        WebbitConnection c = getFor(connection);
         connections.remove(connection);
     }
 
