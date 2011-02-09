@@ -17,11 +17,14 @@ public class DNodeWebSocketHandler implements WebSocketHandler {
     }
 
     public void onOpen(WebSocketConnection connection) throws Exception {
+        System.out.println("ONOPEN");
         WebbitConnection c = getFor(connection);
         dnode.handle(c);
+        System.out.println("ONOPEN DONE");
     }
 
     public void onMessage(WebSocketConnection connection, String msg) throws Exception {
+        System.out.println("DNode RECV: " + msg);
         WebbitConnection c = getFor(connection);
         c.addMessage(msg);
     }

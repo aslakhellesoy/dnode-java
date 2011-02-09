@@ -2506,6 +2506,11 @@ function DNode (obj) {
         
         function sendRequest(method, args) {
             var scrub = scrubber.scrub(args);
+            console.log("SEND", JSON.stringify({
+                method : method,
+                arguments : scrub.arguments,
+                callbacks : scrub.callbacks
+            }));
             sock.send(JSON.stringify({
                 method : method,
                 arguments : scrub.arguments,
@@ -2557,6 +2562,7 @@ function DNode (obj) {
         
         sock.addEvent('message', function (strMsg) {
             lastMessage = Date.now();
+            console.log("RECV", strMsg);
             var req = JSON.parse(strMsg);
             var args = scrubber.unscrub(req, function (id) {
                 return function () {

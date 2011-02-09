@@ -66,7 +66,10 @@ public class DNode {
     }
 
     public void emit(String event, Object... args) {
-        callbacks.get(event).call(args);
+        Callback callback = callbacks.get(event);
+        if(callback != null) { // TODO: Loop over a list
+            callback.call(args);
+        }
     }
 
     private String methods() {
