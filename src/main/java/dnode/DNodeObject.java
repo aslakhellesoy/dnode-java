@@ -12,7 +12,6 @@ import java.lang.reflect.Method;
 public class DNodeObject {
     private final Object instance;
 
-
     public DNodeObject(Object instance) {
         this.instance = instance;
     }

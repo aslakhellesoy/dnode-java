@@ -3,6 +3,7 @@ package dnode.webbit;
 import java.util.LinkedList;
 import java.io.IOException;
 
+import com.google.gson.JsonElement;
 import dnode.Connection;
 import webbit.*;
 
@@ -17,30 +18,13 @@ public class WebbitConnection implements Connection {
         this.webSocketConnection = webSocketConnection;
     }
 
-    public void send(String data) {
-        webSocketConnection.send(data);
+    @Override
+    public void write(JsonElement data) {
+        webSocketConnection.send(data.toString() + "\n");
     }
 
-    public void addMessage(String msg) {
-        synchronized (incoming) {
-            incoming.add(msg);
-            incoming.notifyAll();
-        }
-    }
-
-    public String read() throws IOException {
-        synchronized (incoming) {
-            while (incoming.size() == 0) {
-                try {
-                    incoming.wait();
-                } catch (InterruptedException ignored) {
-                }
-            }
-            return incoming.removeFirst();
-        }
-    }
-
-    public void close() throws IOException {
+    @Override
+    public void close() {
         webSocketConnection.close();
     }
 }

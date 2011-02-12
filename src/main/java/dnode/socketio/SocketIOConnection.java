@@ -14,9 +14,8 @@ class SocketIOConnection implements WebSocketConnection {
     public SocketIOConnection(WebSocketConnection connection, SocketIOCodec codec) {
         this.connection = connection;
         this.codec = codec;
-        // TODO: See dnode/conn.js about how to calculate a unique id
-        System.out.println("connection = " + connection);
-        connection.send(codec.encode("5938544741366059"));
+        String id = String.valueOf(System.currentTimeMillis());
+        connection.send(codec.encode(id));
     }
 
     @Override
@@ -27,7 +26,6 @@ class SocketIOConnection implements WebSocketConnection {
     @Override
     public WebSocketConnection send(String message) {
         String encodedMessage = codec.encode(message);
-        System.out.println("SEND " + encodedMessage);
         connection.send(encodedMessage);
         return this;
     }

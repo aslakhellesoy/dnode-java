@@ -1,11 +1,8 @@
 package dnode;
 
-import java.io.IOException;
+import com.google.gson.JsonElement;
 
 public interface Connection {
-    void send(String data);
-
-    String read() throws IOException;
-
-    void close() throws IOException;
+    void close();
+    void write(JsonElement data);
 }

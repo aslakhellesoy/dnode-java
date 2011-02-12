@@ -9,7 +9,6 @@ import webbit.*;
 public class DNodeWebSocketHandler implements WebSocketHandler {
     private final DNode dnode;
 
-    // This looks horrible, but it seems to be OK... =)
     private final Map<WebSocketConnection, WebbitConnection> connections = new HashMap<WebSocketConnection, WebbitConnection>();
 
     public DNodeWebSocketHandler(DNode dnode) {
@@ -17,16 +16,13 @@ public class DNodeWebSocketHandler implements WebSocketHandler {
     }
 
     public void onOpen(WebSocketConnection connection) throws Exception {
-        System.out.println("ONOPEN");
         WebbitConnection c = getFor(connection);
-        dnode.handle(c);
-        System.out.println("ONOPEN DONE");
+        dnode.onOpen(c);
     }
 
     public void onMessage(WebSocketConnection connection, String msg) throws Exception {
-        System.out.println("DNode RECV: " + msg);
         WebbitConnection c = getFor(connection);
-        c.addMessage(msg);
+        dnode.onMessage(c, msg);
     }
 
     public void onClose(WebSocketConnection connection) throws Exception {

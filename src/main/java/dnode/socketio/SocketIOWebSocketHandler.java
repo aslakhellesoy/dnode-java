@@ -28,7 +28,6 @@ public class SocketIOWebSocketHandler implements WebSocketHandler {
 
     @Override
     public void onMessage(WebSocketConnection connection, String msg) throws Exception {
-        System.out.println("SocketIO RECV: " + msg);
         List<String> messages = codec.decode(msg);
         for (String message : messages) {
             String frame = message.substring(0, 3);

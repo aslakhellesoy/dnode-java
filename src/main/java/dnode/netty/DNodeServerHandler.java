@@ -2,11 +2,16 @@ package dnode.netty;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import dnode.Connection;
 import dnode.DNode;
 import org.jboss.netty.channel.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class DNodeServerHandler extends SimpleChannelUpstreamHandler {
     private final DNode dnode;
+    private Map<Channel, Connection> connections = new HashMap<Channel, Connection>();
 
     public DNodeServerHandler(DNode dnode) {
         this.dnode = dnode;
@@ -14,13 +19,14 @@ public class DNodeServerHandler extends SimpleChannelUpstreamHandler {
 
     @Override
     public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        dnode.onConnection(e.getChannel());
+        Connection connection = new NettyConnection(e.getChannel());
+        connections.put(e.getChannel(), connection);
+        dnode.onOpen(connection);
     }
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
         String message = (String) e.getMessage();
-        JsonElement json = new JsonParser().parse(message);
-        dnode.handleRequest(json.getAsJsonObject(), e.getChannel());
+        dnode.onMessage(connections.get(e.getChannel()), message);
     }
 }
