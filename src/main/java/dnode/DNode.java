@@ -1,14 +1,18 @@
 package dnode;
 
 import com.google.gson.*;
+import org.jboss.netty.channel.Channel;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DNode {
     private final DNodeObject instance;
     private Map<String, Callback> callbacks = new HashMap<String, Callback>();
+    private List<Channel> connections = new ArrayList<Channel>();
 
     public DNode(Object instance) {
         this.instance = new DNodeObject(instance);
@@ -18,6 +22,7 @@ public class DNode {
         server.listen(this);
     }
 
+    @Deprecated
     public void handle(final Connection connection) {
         try {
             connection.send(methods());
@@ -67,7 +72,7 @@ public class DNode {
 
     public void emit(String event, Object... args) {
         Callback callback = callbacks.get(event);
-        if(callback != null) { // TODO: Loop over a list
+        if (callback != null) { // TODO: Loop over a list
             callback.call(args);
         }
     }
@@ -97,5 +102,39 @@ public class DNode {
 
     public void on(String event, Callback callback) {
         callbacks.put(event, callback);
+    }
+
+    public void onConnection(Channel connection) {
+        connections.add(connection);
+        connection.write(methods() + "\n");
+    }
+
+    public void handleRequest(JsonObject req, Channel channel) {
+        JsonPrimitive method = req.getAsJsonPrimitive("method");
+        if (method.isString() && method.getAsString().equals("methods")) {
+            handleMethods(req.getAsJsonArray("arguments").get(0).getAsJsonObject());
+        } else {
+            handleInvocation(req, channel);
+        }
+    }
+
+    private void handleMethods(JsonObject arguments) {
+    }
+
+    private void handleInvocation(JsonObject invocation, final Channel channel) {
+        Callback callback = new Callback() {
+            @Override
+            public void call(Object... args) throws RuntimeException {
+                JsonArray jsonArgs = transform(args);
+                channel.write(responseString(0, jsonArgs, new JsonObject(), new JsonArray()) + "\n");
+            }
+        };
+        instance.invoke(invocation, callback);
+    }
+
+    public void closeAllConnections() {
+        for (Channel connection : connections) {
+            connection.close();
+        }
     }
 }

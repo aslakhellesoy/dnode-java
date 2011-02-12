@@ -1,7 +1,6 @@
 package dnode;
 
-import dnode.nio.NIOServer;
-import dnode.webbit.WebbitServer;
+import dnode.netty.NettyServer;
 import junit.framework.AssertionFailedError;
 import org.junit.After;
 import org.junit.Ignore;
@@ -9,30 +8,35 @@ import org.junit.Test;
 import webbit.WebServer;
 import webbit.WebServers;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.URI;
+import java.io.Reader;
 
 import static org.junit.Assert.assertEquals;
 
 public class DNodeTest {
     private DNode dNode;
-    private Server server;
+    private final Server server = new NettyServer(6060);
+;
 
-    public static class Mooer {
+    public class Mooer {
         private final int moo;
+        public DNode dNode;
 
         public Mooer(int moo) {
             this.moo = moo;
         }
 
-        public void moo(Callback cb) {
+        public void moo(Callback cb) throws IOException {
             cb.call(moo);
+            dNode.closeAllConnections();
+            server.shutdown();
         }
 
-        public void boo(Callback cb) {
+        public void boo(Callback cb) throws IOException {
             cb.call(moo * 10);
+            dNode.closeAllConnections();
+            server.shutdown();
         }
     }
 
@@ -45,21 +49,27 @@ public class DNodeTest {
 
     @Test
     public void shouldTalk() throws IOException, InterruptedException {
-        dNode = new DNode(new Mooer(100));
+        createDnode(100);
         runServer(dNode);
         assertEquals("100\n", runClient("moo"));
     }
 
     @Test
     public void shouldUseDataInInstance() throws IOException, InterruptedException {
-        dNode = new DNode(new Mooer(200));
+        createDnode(200);
         runServer(dNode);
         assertEquals("200\n", runClient("moo"));
     }
 
+    private void createDnode(int moo) {
+        Mooer instance = new Mooer(moo);
+        dNode = new DNode(instance);
+        instance.dNode = dNode;
+    }
+
     @Test
     public void shouldCallRightMethod() throws IOException, InterruptedException {
-        dNode = new DNode(new Mooer(300));
+        createDnode(300);
         runServer(dNode);
         assertEquals("3000\n", runClient("boo"));
     }
@@ -67,15 +77,13 @@ public class DNodeTest {
     @Test
     @Ignore
     public void shouldTalkUsingWebbit() throws IOException, InterruptedException {
-        dNode = new DNode(new Mooer(100));
+        createDnode(100);
         runWebbitServer(dNode);
 //        assertEquals("100\n", runClient("moo"));
         // TODO: Run HTMLUnit here.
     }
 
     private void runServer(final DNode dNode) throws InterruptedException {
-        server = new NIOServer(6060);
-        
         Thread thread = new Thread(new Runnable() {
             public void run() {
                 try {
@@ -130,11 +138,11 @@ public class DNodeTest {
         pb.redirectErrorStream(true);
         Process client = pb.start();
 
-        BufferedReader clientStdOut = new BufferedReader(new InputStreamReader(client.getInputStream(), "UTF-8"));
+        Reader clientStdOut = new InputStreamReader(client.getInputStream(), "UTF-8");
         StringBuilder result = new StringBuilder();
-        String line;
-        while ((line = clientStdOut.readLine()) != null) {
-            result.append(line).append("\n");
+        int c;
+        while ((c = clientStdOut.read()) != -1) {
+            result.append((char) c);
         }
         int exit = client.waitFor();
         if (exit != 0)

@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import org.jboss.netty.channel.Channel;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -43,9 +44,9 @@ public class DNodeObject {
         return callbacks;
     }
 
-    public void invoke(JsonObject invocationJson, Callback callback) {
+    public void invoke(JsonObject invocation, Callback callback) {
         try {
-            instance.getClass().getDeclaredMethods()[invocationJson.get("method").getAsInt()].invoke(instance, callback);
+            instance.getClass().getDeclaredMethods()[invocation.get("method").getAsInt()].invoke(instance, callback);
         } catch (IllegalAccessException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         } catch (InvocationTargetException e) {
