@@ -1,23 +1,25 @@
 <!DOCTYPE html>
 <html>
-<head>
-<script src="/dnode.js"></script>
-<script>
+  <head>
+    <style>span {font-weight: bold;}</style>
+    <script src="/dnode.js"></script>
+    <script>
     window.onload = function () {
-        var Client = function() {
-            this.say = function(what) {
-                console.log("say", what);
-            };
-        }
-        DNode(Client).connect(function (remote) {
-            remote.cat(function (says) {
-                document.getElementById('says').innerHTML = says;
-            });
+      var Client = function() {
+        this.greet = function(greeting) {
+          document.getElementById('greeting').innerHTML = greeting;
+        };
+      }
+      DNode(Client).connect(function(cat) {
+        cat.howAreYou(function(catReply) {
+          document.getElementById('catReply').innerHTML = catReply;
         });
+      });
     };
-</script>
-</head>
-<body>
-The cat says <span id="says">?</span>.
-</body>
+    </script>
+  </head>
+  <body>
+    <div>The cat says <span id="catReply">?</span></div>
+    <div>The server pushed <span id="greeting">?</span></div>
+  </body>
 </html>

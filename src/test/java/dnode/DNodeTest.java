@@ -55,17 +55,34 @@ public class DNodeTest {
         assertEquals("200\n", runClient("moo"));
     }
 
-    private void createDnode(int moo) {
-        Mooer instance = new Mooer(moo);
-        dNode = new DNode(instance);
-        instance.dNode = dNode;
-    }
-
     @Test
     public void shouldCallRightMethod() throws IOException, InterruptedException {
         createDnode(300);
         dNode.listen(server);
         assertEquals("3000\n", runClient("boo"));
+    }
+
+    public static interface SomeClient {
+        void hello();
+    }
+    
+    @Test
+    public void shouldBeAbleToCallClient() {
+        Mooer mooer = new Mooer(345);
+        dNode = new DNode<SomeClient>(mooer, new ClientHandler<SomeClient>() {
+            @Override
+            public void onConnect(SomeClient client) {
+                System.out.println("client = " + client);
+                client.hello();
+            }
+        });
+    }
+
+
+    private void createDnode(int moo) {
+        Mooer instance = new Mooer(moo);
+        dNode = new DNode(instance);
+        instance.dNode = dNode;
     }
 
     private String runClient(String method) throws IOException, InterruptedException {

@@ -32,6 +32,8 @@ public class NettyServer implements Server {
 
     @Override
     public void shutdown() throws IOException {
-        channel.close();
+        if(channel != null) {
+            channel.close();
+        }
     }
 }

@@ -26,7 +26,7 @@ public class DNodeObject {
         return signature;
     }
 
-    public JsonElement getCallbacks() {
+    public JsonObject getCallbacks() {
         Class<?> klass = this.instance.getClass();
         JsonObject callbacks = new JsonObject();
         int index = 0;
@@ -54,7 +54,7 @@ public class DNodeObject {
                 Callback cb = new Callback() {
                     @Override
                     public void call(Object... args) throws RuntimeException {
-                        JsonArray jsonArgs = transform(args);
+                        JsonArray jsonArgs = dNode.transform(args);
                         connection.write(dNode.response(callbackId, jsonArgs, new JsonObject(), new JsonArray()));
                     }
                 };
@@ -67,23 +67,4 @@ public class DNodeObject {
         }
     }
 
-    private JsonArray transform(Object[] args) {
-        JsonArray result = new JsonArray();
-        for (Object arg : args) {
-            result.add(toJson(arg));
-        }
-        return result;
-    }
-
-    private JsonElement toJson(Object o) {
-        JsonElement e;
-        if (o instanceof String) {
-            e = new JsonPrimitive((String) o);
-        } else if (o instanceof Number) {
-            e = new JsonPrimitive((Number) o);
-        } else {
-            throw new RuntimeException("Unsupported type: " + o.getClass());
-        }
-        return e;
-    }
 }
