@@ -3,10 +3,7 @@ package dnode;
 import dnode.netty.NettyServer;
 import junit.framework.AssertionFailedError;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
-import webbit.WebServer;
-import webbit.WebServers;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -44,19 +41,17 @@ public class DNodeTest {
         server.shutdown();
     }
 
-    private final Object signals = new Object();
-
     @Test
     public void shouldTalk() throws IOException, InterruptedException {
         createDnode(100);
-        runServer(dNode);
+        dNode.listen(server);
         assertEquals("100\n", runClient("moo"));
     }
 
     @Test
     public void shouldUseDataInInstance() throws IOException, InterruptedException {
         createDnode(200);
-        runServer(dNode);
+        dNode.listen(server);
         assertEquals("200\n", runClient("moo"));
     }
 
@@ -69,65 +64,8 @@ public class DNodeTest {
     @Test
     public void shouldCallRightMethod() throws IOException, InterruptedException {
         createDnode(300);
-        runServer(dNode);
+        dNode.listen(server);
         assertEquals("3000\n", runClient("boo"));
-    }
-
-    @Test
-    @Ignore
-    public void shouldTalkUsingWebbit() throws IOException, InterruptedException {
-        createDnode(100);
-        runWebbitServer(dNode);
-//        assertEquals("100\n", runClient("moo"));
-        // TODO: Run HTMLUnit here.
-    }
-
-    private void runServer(final DNode dNode) throws InterruptedException {
-        Thread thread = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    dNode.on("ready", new Callback() {
-                        public void call(Object... args) {
-                            synchronized (signals) {
-                                signals.notifyAll();
-                            }
-                        }
-                    });
-                    dNode.listen(server);
-                } catch (IOException e) {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                }
-            }
-        });
-        synchronized (signals) {
-            thread.start();
-            signals.wait();
-        }
-    }
-
-    private void runWebbitServer(final DNode dNode) throws InterruptedException {
-        WebServer webServer = WebServers.createWebServer(6060);
-//        server = new WebbitServer(webServer, "/websocket");
-        Thread thread = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    dNode.on("ready", new Callback() {
-                        public void call(Object... args) {
-                            synchronized (signals) {
-                                signals.notifyAll();
-                            }
-                        }
-                    });
-                    dNode.listen(server);
-                } catch (IOException e) {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                }
-            }
-        });
-        synchronized (signals) {
-            thread.start();
-            signals.wait();
-        }
     }
 
     private String runClient(String method) throws IOException, InterruptedException {

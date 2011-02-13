@@ -4,13 +4,10 @@ import com.google.gson.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class DNode {
     private final DNodeObject instance;
-    private Map<String, Callback> callbacks = new HashMap<String, Callback>();
     private List<Connection> connections = new ArrayList<Connection>();
 
     public DNode(Object instance) {
@@ -19,13 +16,6 @@ public class DNode {
 
     public void listen(Server server) throws IOException {
         server.listen(this);
-    }
-
-    public void emit(String event, Object... args) {
-        Callback callback = callbacks.get(event);
-        if (callback != null) { // TODO: Loop over a list
-            callback.call(args);
-        }
     }
 
     private JsonElement methods() {
@@ -51,10 +41,6 @@ public class DNode {
         return response;
     }
 
-    public void on(String event, Callback callback) {
-        callbacks.put(event, callback);
-    }
-
     public void onOpen(Connection connection) {
         connections.add(connection);
         connection.write(methods());
@@ -71,7 +57,7 @@ public class DNode {
     }
 
     private void handleMethods(JsonObject methods) {
-
+//        System.out.println("methods = " + methods);
     }
 
     public void closeAllConnections() {

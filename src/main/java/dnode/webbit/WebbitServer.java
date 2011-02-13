@@ -15,12 +15,11 @@ public class WebbitServer implements Server {
     }
 
     public void listen(DNode dnode) throws IOException {
-        this.server.add("/socket.io/websocket", new SocketIOWebSocketHandler(new DNodeWebSocketHandler(dnode)));
-        dnode.emit("ready");
+        server.add("/socket.io/websocket", new SocketIOWebSocketHandler(new DNodeWebSocketHandler(dnode)));
     }
 
     public void shutdown() throws IOException {
-        this.server.stop();
+        server.stop();
     }
 }
 

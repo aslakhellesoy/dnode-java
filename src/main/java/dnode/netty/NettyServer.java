@@ -26,14 +26,8 @@ public class NettyServer implements Server {
                 Executors.newCachedThreadPool());
 
         ServerBootstrap bootstrap = new ServerBootstrap(factory);
-
         bootstrap.setPipelineFactory(new DNodePipelineFactory(dnode));
-
-//        bootstrap.setOption("child.tcpNoDelay", true);
-//        bootstrap.setOption("child.keepAlive", true);
-
         channel = bootstrap.bind(new InetSocketAddress(port));
-        dnode.emit("ready");
     }
 
     @Override
