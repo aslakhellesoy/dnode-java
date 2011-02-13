@@ -9,7 +9,6 @@ import webbit.*;
 
 public class WebbitConnection implements Connection {
     private final WebSocketConnection webSocketConnection;
-    private final LinkedList<String> incoming = new LinkedList<String>();
 
     public WebbitConnection(WebSocketConnection webSocketConnection) {
         if (webSocketConnection == null) {

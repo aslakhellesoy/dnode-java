@@ -27,7 +27,6 @@
             <groupId>org.jboss.netty</groupId>
             <artifactId>netty</artifactId>
             <version>3.2.3.Final</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -37,12 +36,25 @@
         </dependency>
         <dependency>
             <groupId>net.sourceforge.htmlunit</groupId>
-            <artifactId>htmlunit-websocket</artifactId>
+            <artifactId>htmlunit</artifactId>
             <version>2.9-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.4</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
     <repositories>
+        <repository>
+            <id>Local</id>
+            <url>file://${basedir}/lib/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
         <repository>
             <id>GSon</id>
             <url>http://google-gson.googlecode.com/svn/mavenrepo/</url>
@@ -54,10 +66,6 @@
         <repository>
             <id>JBoss</id>
             <url>http://repository.jboss.org/nexus/content/groups/public/</url>
-        </repository>
-        <repository>
-            <id>Local</id>
-            <url>file://${project.dir}/lib/</url>
         </repository>
     </repositories>
     <build>

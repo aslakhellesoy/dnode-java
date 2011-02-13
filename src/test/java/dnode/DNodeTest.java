@@ -17,7 +17,6 @@ import static org.junit.Assert.assertEquals;
 public class DNodeTest {
     private DNode dNode;
     private final Server server = new NettyServer(6060);
-;
 
     public class Mooer {
         private final int moo;

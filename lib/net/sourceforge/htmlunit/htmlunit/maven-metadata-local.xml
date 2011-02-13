@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <metadata>
   <groupId>net.sourceforge.htmlunit</groupId>
-  <artifactId>htmlunit-websocket</artifactId>
+  <artifactId>htmlunit</artifactId>
   <versioning>
     <versions>
       <version>2.9-SNAPSHOT</version>
     </versions>
-    <lastUpdated>20110208203837</lastUpdated>
+    <lastUpdated>20110213125036</lastUpdated>
   </versioning>
 </metadata>
