@@ -1,11 +1,8 @@
 package dnode.webbit;
 
-import java.util.LinkedList;
-import java.io.IOException;
-
 import com.google.gson.JsonElement;
 import dnode.Connection;
-import webbit.*;
+import webbit.WebSocketConnection;
 
 public class WebbitConnection implements Connection {
     private final WebSocketConnection webSocketConnection;

@@ -4,7 +4,12 @@
 <script src="/dnode.js"></script>
 <script>
     window.onload = function () {
-        DNode.connect(function (remote) {
+        var Client = function() {
+            this.say = function(what) {
+                console.log("say", what);
+            };
+        }
+        DNode(Client).connect(function (remote) {
             remote.cat(function (says) {
                 document.getElementById('says').innerHTML = says;
             });

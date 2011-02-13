@@ -23,7 +23,7 @@ public class SocketIOCodec {
     }
 
     private String stringify(Object message) {
-        if(message instanceof JsonElement) {
+        if (message instanceof JsonElement) {
             return "~j~" + message.toString();
         } else {
             return String.valueOf(message);
@@ -38,10 +38,10 @@ public class SocketIOCodec {
             data = data.substring(3);
             for (int i = 0, l = data.length(); i < l; i++) {
                 try {
-                    String sub = data.substring(i, i+1);
+                    String sub = data.substring(i, i + 1);
                     Integer.parseInt(sub);
-                    number += data.substring(i, i+1);
-                } catch(NumberFormatException e) {
+                    number += data.substring(i, i + 1);
+                } catch (NumberFormatException e) {
                     data = data.substring(number.length() + FRAME.length());
                     break;
                 }

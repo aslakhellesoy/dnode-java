@@ -4,10 +4,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import org.jboss.netty.channel.Channel;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.Set;
 
 public class DNodeObject {
     private final Object instance;
@@ -43,13 +44,46 @@ public class DNodeObject {
         return callbacks;
     }
 
-    public void invoke(JsonObject invocation, Callback callback) {
+    public void invoke(final DNode dNode, JsonObject invocation, final Connection connection) {
         try {
-            instance.getClass().getDeclaredMethods()[invocation.get("method").getAsInt()].invoke(instance, callback);
+            int methodIndex = invocation.get("method").getAsInt();
+            Set<Map.Entry<String, JsonElement>> callbacks = invocation.get("callbacks").getAsJsonObject().entrySet();
+            for (Map.Entry<String, JsonElement> callback : callbacks) {
+                final int callbackId = Integer.parseInt(callback.getKey());
+                JsonArray path = callback.getValue().getAsJsonArray();
+                Callback cb = new Callback() {
+                    @Override
+                    public void call(Object... args) throws RuntimeException {
+                        JsonArray jsonArgs = transform(args);
+                        connection.write(dNode.response(callbackId, jsonArgs, new JsonObject(), new JsonArray()));
+                    }
+                };
+                instance.getClass().getDeclaredMethods()[methodIndex].invoke(instance, cb);
+            }
         } catch (IllegalAccessException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         } catch (InvocationTargetException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
+    }
+
+    private JsonArray transform(Object[] args) {
+        JsonArray result = new JsonArray();
+        for (Object arg : args) {
+            result.add(toJson(arg));
+        }
+        return result;
+    }
+
+    private JsonElement toJson(Object o) {
+        JsonElement e;
+        if (o instanceof String) {
+            e = new JsonPrimitive((String) o);
+        } else if (o instanceof Number) {
+            e = new JsonPrimitive((Number) o);
+        } else {
+            throw new RuntimeException("Unsupported type: " + o.getClass());
+        }
+        return e;
     }
 }

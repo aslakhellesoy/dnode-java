@@ -146,7 +146,7 @@ public class DNodeTest {
         int exit = client.waitFor();
         if (exit != 0)
             throw new AssertionFailedError("Exit value from external process was " + exit +
-                                           " (with stdout/stderr: " + result + ")");
+                    " (with stdout/stderr: " + result + ")");
         return result.toString();
     }
 }

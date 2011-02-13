@@ -1,10 +1,11 @@
 package dnode.webbit;
 
-import java.util.Map;
-import java.util.HashMap;
-
 import dnode.DNode;
-import webbit.*;
+import webbit.WebSocketConnection;
+import webbit.WebSocketHandler;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class DNodeWebSocketHandler implements WebSocketHandler {
     private final DNode dnode;
@@ -31,7 +32,7 @@ public class DNodeWebSocketHandler implements WebSocketHandler {
 
     private WebbitConnection getFor(WebSocketConnection connection) {
         WebbitConnection wc = connections.get(connection);
-        if(wc == null) {
+        if (wc == null) {
             wc = new WebbitConnection(connection);
             connections.put(connection, wc);
         }

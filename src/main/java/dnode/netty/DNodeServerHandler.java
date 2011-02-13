@@ -1,7 +1,5 @@
 package dnode.netty;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 import dnode.Connection;
 import dnode.DNode;
 import org.jboss.netty.channel.*;

@@ -13,7 +13,7 @@ import java.util.Map;
 public class SocketIOWebSocketHandler implements WebSocketHandler {
     private static final SocketIOCodec codec = new SocketIOCodec();
     private final WebSocketHandler handler;
-    private Map<WebSocketConnection,SocketIOConnection> socketIOConnections = new HashMap<WebSocketConnection,SocketIOConnection>();
+    private Map<WebSocketConnection, SocketIOConnection> socketIOConnections = new HashMap<WebSocketConnection, SocketIOConnection>();
 
     public SocketIOWebSocketHandler(WebSocketHandler handler) {
         this.handler = handler;
@@ -31,10 +31,10 @@ public class SocketIOWebSocketHandler implements WebSocketHandler {
         List<String> messages = codec.decode(msg);
         for (String message : messages) {
             String frame = message.substring(0, 3);
-            if(frame.equals("~j~")) {
+            if (frame.equals("~j~")) {
                 // Heartbeat
                 return;
-            } else if(frame.equals("~j~")) {
+            } else if (frame.equals("~j~")) {
                 // TODO: Should we parse into JSON here? We also seem to get JSON that is *not* prefixed with ~j~ (??)
                 message = message.substring(3);
             }

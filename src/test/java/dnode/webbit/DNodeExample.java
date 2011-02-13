@@ -16,7 +16,7 @@ public class DNodeExample {
             cb.call("GROWL");
         }
     }
-    
+
     public static void main(String[] args) throws IOException {
         WebServer server = new NettyWebServer(6061);
         new DNode(new Cat()).listen(new WebbitServer(server));
